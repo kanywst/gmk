@@ -1,5 +1,5 @@
 use anyhow::Result;
-use colored::*; 
+use colored::*;
 use skim::prelude::*;
 use std::io::{self, Cursor, Write};
 
@@ -20,8 +20,10 @@ pub fn run_fuzzy_finder(keys: Vec<String>) -> Result<UserAction> {
         .reverse(true)
         .multi(false)
         .prompt("Clone ❯ ".to_string())
-        .header(Some("Select a repository (Enter: Default, Ctrl-b: Specify Branch)".to_string()))
-        .bind(vec!["ctrl-b:accept".to_string()]) 
+        .header(Some(
+            "Select a repository (Enter: Default, Ctrl-b: Specify Branch)".to_string(),
+        ))
+        .bind(vec!["ctrl-b:accept".to_string()])
         .build()
         .map_err(|e| anyhow::anyhow!("Skim failed: {}", e))?;
 
@@ -32,7 +34,7 @@ pub fn run_fuzzy_finder(keys: Vec<String>) -> Result<UserAction> {
 
     let item_reader = SkimItemReader::default();
     let items = item_reader.of_bufread(Cursor::new(input));
-    
+
     let output = Skim::run_with(&options, Some(items))
         .ok_or_else(|| anyhow::anyhow!("Skim failed to run"))?;
 
@@ -62,11 +64,11 @@ pub fn run_fuzzy_finder(keys: Vec<String>) -> Result<UserAction> {
 pub fn prompt_branch_name() -> Result<Option<String>> {
     print!("{}", "🌿 Enter branch name: ".bold().blue());
     io::stdout().flush()?;
-    
+
     let mut input = String::new();
     io::stdin().read_line(&mut input)?;
     let trimmed = input.trim();
-    
+
     if trimmed.is_empty() {
         Ok(None)
     } else {
