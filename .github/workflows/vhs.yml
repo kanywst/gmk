@@ -1,0 +1,52 @@
+name: Generate Demo GIF
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'demo.tape'
+      - 'src/**'
+      - 'Cargo.toml'
+      - '.github/workflows/vhs.yml'
+
+jobs:
+  vhs:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Write permission required to commit changes
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # 1. Setup Rust environment (to build the binary)
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      # 2. Build application (Release mode)
+      - name: Build gmk
+        run: cargo build --release
+
+      # 3. Install and run VHS to generate GIF
+      # Note: We install vhs manually instead of using vhs-action to have better control
+      # over the environment (specifically PATH) to run our built binary.
+      
+      - name: Install VHS and dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y ffmpeg
+          curl -s "https://i.jpillora.com/charmbracelet/vhs!" | bash
+
+      - name: Generate GIF
+        run: |
+          # Add built binary to PATH
+          export PATH=$PWD/target/release:$PATH
+          # Ensure assets directory exists
+          mkdir -p assets
+          vhs demo.tape
+
+      # 4. Commit and push if changed
+      - name: Commit and Push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update demo.gif [skip ci]"
+          file_pattern: assets/demo.gif

@@ -1,0 +1,15 @@
+# Rust / Cargo
+/target/
+**/*.rs.bk
+Cargo.lock
+
+# macOS
+.DS_Store
+
+# Local configuration (if any)
+.env
+*.log
+
+# VHS (Optional: if you don't want to commit the generated gif locally, 
+# but we are using it for README, so we keep assets/demo.gif tracked)
+# assets/demo.gif
