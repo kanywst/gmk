@@ -20,6 +20,10 @@ lint: ## Run format check and clippy
 	cargo fmt -- --check
 	cargo clippy -- -D warnings
 
+.PHONY: audit
+audit: ## Run security audit
+	cargo audit
+
 .PHONY: clean
 clean: ## Clean build artifacts
 	cargo clean

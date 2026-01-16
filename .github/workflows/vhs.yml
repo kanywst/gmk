@@ -30,7 +30,7 @@ jobs:
       # 3. Install and run VHS to generate GIF
       # Note: We install vhs manually instead of using vhs-action to have better control
       # over the environment (specifically PATH) to run our built binary.
-      
+
       - name: Install VHS and dependencies
         run: |
           sudo apt-get update && sudo apt-get install -y ffmpeg ttyd
