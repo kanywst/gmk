@@ -10,7 +10,7 @@ static REPO_RE: LazyLock<Regex> =
 
 /// Extracts "Owner/Repo" from a Git URL.
 pub fn extract_repo_name(url: &str) -> Result<String> {
-    let clean_url = url.trim_end_matches(".git");
+    let clean_url = url.trim_end_matches('/').trim_end_matches(".git");
 
     if let Some(caps) = REPO_RE.captures(clean_url) {
         let owner = &caps["owner"];
@@ -108,6 +108,18 @@ mod tests {
     fn https_url_without_dot_git() {
         assert_eq!(
             extract_repo_name("https://github.com/rust-lang/rust").unwrap(),
+            "rust-lang/rust"
+        );
+    }
+
+    #[test]
+    fn https_url_with_trailing_slash() {
+        assert_eq!(
+            extract_repo_name("https://github.com/rust-lang/rust/").unwrap(),
+            "rust-lang/rust"
+        );
+        assert_eq!(
+            extract_repo_name("https://github.com/rust-lang/rust.git/").unwrap(),
             "rust-lang/rust"
         );
     }
