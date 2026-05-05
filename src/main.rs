@@ -29,7 +29,12 @@ fn main() -> Result<()> {
 
     let args = cli::Cli::parse();
     let cfg_path = get_config_path()?;
-    let mut cfg: AppConfig = confy::load_path(&cfg_path).unwrap_or_default();
+    let mut cfg: AppConfig = confy::load_path(&cfg_path).with_context(|| {
+        format!(
+            "Failed to load config at {}. Fix or remove the file to continue.",
+            cfg_path.display()
+        )
+    })?;
 
     match &args.command {
         Some(cli::Commands::Set { url }) => match git::extract_repo_name(url) {
