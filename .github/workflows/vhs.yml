@@ -17,7 +17,7 @@ jobs:
       contents: write # Write permission required to commit changes
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       # 1. Setup Rust environment (to build the binary)
       - name: Install Rust
