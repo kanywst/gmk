@@ -10,6 +10,10 @@ Cargo.lock
 .env
 *.log
 
+# Claude Code (local-only)
+CLAUDE.md
+.claude/
+
 # VHS (Optional: if you don't want to commit the generated gif locally, 
 # but we are using it for README, so we keep assets/demo.gif tracked)
 # assets/demo.gif
