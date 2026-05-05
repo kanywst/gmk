@@ -12,7 +12,11 @@ env:
 jobs:
   test:
     name: Test & Lint
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v4
 
@@ -21,8 +25,11 @@ jobs:
         with:
           components: rustfmt, clippy
 
+      - name: Cache cargo
+        uses: Swatinem/rust-cache@v2
+
       - name: Check Formatting & Lint
         run: make lint
 
       - name: Run Tests
-        run: make test
+        run: cargo test --locked
