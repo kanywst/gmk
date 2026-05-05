@@ -3,16 +3,19 @@ use colored::*;
 use regex::Regex;
 use std::path::Path;
 use std::process::{Command, Stdio};
+use std::sync::LazyLock;
+
+static REPO_RE: LazyLock<Regex> =
+    LazyLock::new(|| Regex::new(r"[:/](?P<owner>[^/]+)/(?P<repo>[^/]+)$").expect("valid regex"));
 
 /// Extracts "Owner/Repo" from a Git URL.
 pub fn extract_repo_name(url: &str) -> Result<String> {
     let clean_url = url.trim_end_matches(".git");
-    let re = Regex::new(r"[:/](?P<owner>[^/]+)/(?P<repo>[^/]+)$")?;
 
-    if let Some(caps) = re.captures(clean_url) {
+    if let Some(caps) = REPO_RE.captures(clean_url) {
         let owner = &caps["owner"];
         let repo = &caps["repo"];
-        Ok(format!("{}/{}", owner, repo))
+        Ok(format!("{owner}/{repo}"))
     } else {
         Err(anyhow::anyhow!(
             "Invalid Git URL format. Expected 'owner/repo' structure."
@@ -87,4 +90,47 @@ pub fn run_clone(
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn https_url() {
+        assert_eq!(
+            extract_repo_name("https://github.com/rust-lang/rust.git").unwrap(),
+            "rust-lang/rust"
+        );
+    }
+
+    #[test]
+    fn https_url_without_dot_git() {
+        assert_eq!(
+            extract_repo_name("https://github.com/rust-lang/rust").unwrap(),
+            "rust-lang/rust"
+        );
+    }
+
+    #[test]
+    fn ssh_url() {
+        assert_eq!(
+            extract_repo_name("git@github.com:kanywst/gmk.git").unwrap(),
+            "kanywst/gmk"
+        );
+    }
+
+    #[test]
+    fn self_hosted_https() {
+        assert_eq!(
+            extract_repo_name("https://git.example.com/team/project.git").unwrap(),
+            "team/project"
+        );
+    }
+
+    #[test]
+    fn rejects_garbage() {
+        assert!(extract_repo_name("not a url").is_err());
+        assert!(extract_repo_name("https://example.com/").is_err());
+    }
 }
